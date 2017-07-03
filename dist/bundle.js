@@ -77,6 +77,7 @@ var CellType;
 (function (CellType) {
     CellType[CellType["Wall"] = 0] = "Wall";
     CellType[CellType["Ground"] = 1] = "Ground";
+    CellType[CellType["Exit"] = 2] = "Exit";
 })(CellType = exports.CellType || (exports.CellType = {}));
 var GameObjectType;
 (function (GameObjectType) {
@@ -84,8 +85,7 @@ var GameObjectType;
     GameObjectType[GameObjectType["Enemy"] = 1] = "Enemy";
     GameObjectType[GameObjectType["Potion"] = 2] = "Potion";
     GameObjectType[GameObjectType["Weapon"] = 3] = "Weapon";
-    GameObjectType[GameObjectType["ExitDoor"] = 4] = "ExitDoor";
-    GameObjectType[GameObjectType["Empty"] = 5] = "Empty";
+    GameObjectType[GameObjectType["Empty"] = 4] = "Empty";
 })(GameObjectType = exports.GameObjectType || (exports.GameObjectType = {}));
 var Direction;
 (function (Direction) {
@@ -116,6 +116,9 @@ var RandomRange = (function () {
     }
     RandomRange.prototype.random = function () {
         return Math.floor(Math.random() * (this.max - this.min + 1) + this.min);
+    };
+    RandomRange.prototype.randomFloat = function () {
+        return Math.random() * (this.max - this.min) + this.min;
     };
     RandomRange.getRangeInclusive = function (min, max) {
         return Math.floor(Math.random() * (max - min + 1) + min);
@@ -196,7 +199,7 @@ var RogueLike = (function (_super) {
         };
         _this.startBattle = function (enemy) {
             if (enemy === _this.state.player) {
-                throw "Player cannot be passed into startBattle method in RogueLike Component";
+                throw new Error("Player cannot be passed into startBattle method in RogueLike Component");
             }
             var player = _this.state.player;
             player.attack(enemy);
@@ -231,7 +234,7 @@ var RogueLike = (function (_super) {
                 player: player
             });
         };
-        var initPlayer = new Entity_1.Entity(0, 0, 100, new Weapon_1.Weapon("Stick", new RandomRange_1.RandomRange(5, 10)), Enums_1.GameObjectType.Player);
+        var initPlayer = new Entity_1.Entity(0, 0, 100, new Weapon_1.Weapon("Stick", new RandomRange_1.RandomRange(5, 10)), Enums_1.GameObjectType.Player, 1);
         _this.state = {
             player: initPlayer
         };
@@ -285,9 +288,12 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(1);
+var Entity_1 = __webpack_require__(12);
 var RandomRange_1 = __webpack_require__(2);
 var Enums_1 = __webpack_require__(0);
+var Weapon_1 = __webpack_require__(3);
 var Grid_1 = __webpack_require__(13);
+var Coordinate_1 = __webpack_require__(16);
 var Enums_2 = __webpack_require__(0);
 var BoardRow_1 = __webpack_require__(6);
 var Tile_1 = __webpack_require__(9);
@@ -302,62 +308,42 @@ var GameLevel = (function (_super) {
             var grid = _this.state.grid;
             //move left
             if (direction === 37 || direction === 65) {
-                try {
-                    if (!_this.detectCollision(player.yPos, player.xPos - 1)) {
-                        grid.cells[player.yPos][player.xPos].object = null;
-                        grid.cells[player.yPos][player.xPos - 1].object = player;
-                        _this.props.changePlayerDirection("left");
-                    }
-                    else {
-                        return;
-                    }
+                if (!_this.detectCollision(player.yPos, player.xPos - 1)) {
+                    grid.cells[player.yPos][player.xPos].object = null;
+                    grid.cells[player.yPos][player.xPos - 1].object = player;
+                    _this.props.changePlayerDirection("left");
                 }
-                catch (exception) {
+                else {
                     return;
                 }
             }
             else if (direction === 38 || direction === 87) {
-                try {
-                    if (!_this.detectCollision(player.yPos - 1, player.xPos)) {
-                        grid.cells[player.yPos][player.xPos].object = null;
-                        grid.cells[player.yPos - 1][player.xPos].object = player;
-                        _this.props.changePlayerDirection("up");
-                    }
-                    else {
-                        return;
-                    }
+                if (!_this.detectCollision(player.yPos - 1, player.xPos)) {
+                    grid.cells[player.yPos][player.xPos].object = null;
+                    grid.cells[player.yPos - 1][player.xPos].object = player;
+                    _this.props.changePlayerDirection("up");
                 }
-                catch (exception) {
+                else {
                     return;
                 }
             }
             else if (direction === 39 || direction === 68) {
-                try {
-                    if (!_this.detectCollision(player.yPos, player.xPos + 1)) {
-                        grid.cells[player.yPos][player.xPos].object = null;
-                        grid.cells[player.yPos][player.xPos + 1].object = player;
-                        _this.props.changePlayerDirection("right");
-                    }
-                    else {
-                        return;
-                    }
+                if (!_this.detectCollision(player.yPos, player.xPos + 1)) {
+                    grid.cells[player.yPos][player.xPos].object = null;
+                    grid.cells[player.yPos][player.xPos + 1].object = player;
+                    _this.props.changePlayerDirection("right");
                 }
-                catch (exception) {
+                else {
                     return;
                 }
             }
             else if (direction === 40 || direction === 83) {
-                try {
-                    if (!_this.detectCollision(player.yPos + 1, player.xPos)) {
-                        grid.cells[player.yPos][player.xPos].object = null;
-                        grid.cells[player.yPos + 1][player.xPos].object = player;
-                        _this.props.changePlayerDirection("down");
-                    }
-                    else {
-                        return;
-                    }
+                if (!_this.detectCollision(player.yPos + 1, player.xPos)) {
+                    grid.cells[player.yPos][player.xPos].object = null;
+                    grid.cells[player.yPos + 1][player.xPos].object = player;
+                    _this.props.changePlayerDirection("down");
                 }
-                catch (exception) {
+                else {
                     return;
                 }
             }
@@ -367,10 +353,17 @@ var GameLevel = (function (_super) {
         };
         _this.detectCollision = function (yNextPos, xNextPos) {
             var board = _this.state.grid;
+            //check if we are going outside the bounds of the grid,
+            //if so just return
+            if (yNextPos > board.cells.length - 1 || yNextPos < 0 ||
+                xNextPos > board.cells[0].length - 1 || xNextPos < 0) {
+                return true;
+            }
             //Make sure the next object in the next cell contains something
             if (board.cells[yNextPos][xNextPos].object !== null) {
                 //Collision with an Enemy
                 if (board.cells[yNextPos][xNextPos].object.type === Enums_1.GameObjectType.Enemy) {
+                    ;
                     var enemy = board.cells[yNextPos][xNextPos].object;
                     //Player and enemy battle when they collide!
                     _this.props.startBattle(enemy);
@@ -403,9 +396,12 @@ var GameLevel = (function (_super) {
                         grid: board
                     });
                 }
-                else if (board.cells[yNextPos][xNextPos].object.type === Enums_1.GameObjectType.ExitDoor) {
-                    //TODO: Load next level
-                }
+            }
+            else if (board.cells[yNextPos][xNextPos].cellType === Enums_2.CellType.Exit) {
+                //start new level
+                _this.setState({
+                    levelNumber: _this.state.levelNumber + 1
+                });
             }
             else if (board.cells[yNextPos][xNextPos].cellType === Enums_2.CellType.Wall) {
                 return true;
@@ -413,6 +409,27 @@ var GameLevel = (function (_super) {
             return false;
         };
         _this.createNewLevel = function () {
+            var grid = _this.state.grid;
+            var level = _this.state.levelNumber;
+            grid.createLevel();
+            //Populate the level
+            switch (level) {
+                case 1:
+                    _this.spawnEnemies(new RandomRange_1.RandomRange(3, 5), new RandomRange_1.RandomRange(0.1, 0.3));
+                    break;
+                case 2:
+                    _this.spawnEnemies(new RandomRange_1.RandomRange(5, 10), new RandomRange_1.RandomRange(0.3, 0.42));
+                    break;
+                case 3:
+                    _this.spawnEnemies(new RandomRange_1.RandomRange(11, 15), new RandomRange_1.RandomRange(0.42, 0.55));
+                    break;
+                case 4:
+                    _this.spawnEnemies(new RandomRange_1.RandomRange(15, 16), new RandomRange_1.RandomRange(0.55, 0.75));
+                    break;
+            }
+            _this.setState({
+                grid: grid
+            });
         };
         var gridHeight = 50;
         var gridWidth = 75;
@@ -422,24 +439,18 @@ var GameLevel = (function (_super) {
         **For Tests Only, Clear out ASAP**
         **********************************/
         var playerTile;
-        var randCol = -1;
-        var randRow = -1;
-        do {
-            randCol = RandomRange_1.RandomRange.getRangeInclusive(0, gridWidth - 1);
-            randRow = RandomRange_1.RandomRange.getRangeInclusive(0, gridHeight - 1);
-            playerTile = initGrid.cells[randRow][randCol].cellType;
-        } while (playerTile === Enums_2.CellType.Wall);
-        props.spawnPlayer(randCol, randRow);
-        console.log(randRow, randCol);
-        initGrid.cells[randRow][randCol].object = props.player;
+        var position = null;
+        position = _this.getRandomLocation(initGrid);
+        props.spawnPlayer(position.x, position.y);
+        initGrid.cells[position.y][position.x].object = props.player;
+        var exitTile;
+        position = _this.getRandomLocation(initGrid);
+        initGrid.cells[position.y][position.x].cellType = Enums_2.CellType.Exit;
+        _this.spawnEnemies(new RandomRange_1.RandomRange(3, 5), new RandomRange_1.RandomRange(0.1, 0.3), initGrid);
         /**End Here**/
-        //Place the player on the board at its starting position
-        // initGrid.cells[props.player.yPos][props.player.xPos].object = props.player;
-        // initGrid.cells[0][4].object = new Entity(0, 4, 25, new Weapon("Claws", new RandomRange(8 ,11)), GameObjectType.Enemy);
-        // initGrid.cells[2][5].object = new Potion(25);
-        // initGrid.cells[4][2].object = new Weapon("NiggBeater", new RandomRange(6.9, 69));
         _this.state = {
-            grid: initGrid
+            grid: initGrid,
+            levelNumber: 0
         };
         return _this;
     }
@@ -452,6 +463,61 @@ var GameLevel = (function (_super) {
                 _this.movePlayer(event.keyCode);
             }
         });
+    };
+    GameLevel.prototype.componentDidUpdate = function (prevProps, prevState) {
+        //If we updated the level, create a new one
+        if (this.state.levelNumber !== prevState.levelNumber) {
+            this.createNewLevel();
+        }
+    };
+    GameLevel.prototype.getRandomLocation = function (grid) {
+        var randX = -1;
+        var randY = -1;
+        do {
+            randX = RandomRange_1.RandomRange.getRangeExclusive(0, grid.cells[0].length);
+            randY = RandomRange_1.RandomRange.getRangeExclusive(0, grid.cells.length);
+        } while (grid.cells[randY][randX].cellType === Enums_2.CellType.Wall ||
+            grid.cells[randY][randX].cellType === Enums_2.CellType.Exit);
+        return new Coordinate_1.Coordinate(randX, randY);
+    };
+    GameLevel.prototype.spawnEnemies = function (enemyRange, modifierRange, firstGrid) {
+        var grid = firstGrid ? firstGrid : this.state.grid;
+        var level = firstGrid ? 0 : this.state.levelNumber;
+        var enemies = enemyRange.random();
+        var enemy = null;
+        var position = null;
+        var attackRange = null;
+        if (level === 0)
+            attackRange = new RandomRange_1.RandomRange(5, 10);
+        else if (level === 1)
+            attackRange = new RandomRange_1.RandomRange(15, 20);
+        else if (level === 2)
+            attackRange = new RandomRange_1.RandomRange(11, 14);
+        else if (level === 3)
+            attackRange = new RandomRange_1.RandomRange(15, 25);
+        else if (level === 4)
+            attackRange = new RandomRange_1.RandomRange(25, 35);
+        for (var i = 0; i < enemies; i++) {
+            position = this.getRandomLocation(grid);
+            enemy = new Entity_1.Entity(position.x, position.y, 100, new Weapon_1.Weapon("Claw", attackRange), Enums_1.GameObjectType.Enemy, modifierRange.randomFloat());
+            grid.cells[position.y][position.x].object = enemy;
+        }
+    };
+    GameLevel.prototype.spawnItems = function (potionHealthRange) {
+        var level = this.state.levelNumber;
+        var weapon = null;
+        if (level === 0)
+            weapon = new Weapon_1.Weapon("Sword", new RandomRange_1.RandomRange(3, 25));
+        else if (level === 1)
+            weapon = new Weapon_1.Weapon("Axe", new RandomRange_1.RandomRange(10, 35));
+        else if (level === 2)
+            weapon = new Weapon_1.Weapon("Mace", new RandomRange_1.RandomRange(25, 40));
+        else if (level === 3)
+            weapon = new Weapon_1.Weapon("Claymore", new RandomRange_1.RandomRange(40, 48));
+        else if (level === 4)
+            weapon = new Weapon_1.Weapon("Katana", new RandomRange_1.RandomRange(55, 78));
+    };
+    GameLevel.prototype.componentWillUnmount = function () {
     };
     GameLevel.prototype.render = function () {
         var keyCounter = 0;
@@ -517,9 +583,9 @@ function Tile(props) {
         else if (props.cell.object.type === Enums_2.GameObjectType.Weapon) {
             return (React.createElement("td", { className: "weapon" }));
         }
-        else if (props.cell.object.type === Enums_2.GameObjectType.ExitDoor) {
-            return (React.createElement("td", { className: "exit-door" }));
-        }
+    }
+    else if (props.cell.cellType === Enums_1.CellType.Exit) {
+        return (React.createElement("td", { className: "exit-door" }));
     }
     else if (props.cell.cellType === Enums_1.CellType.Wall) {
         return (React.createElement("td", { className: "wall" }));
@@ -577,21 +643,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Weapon_1 = __webpack_require__(3);
 var RandomRange_1 = __webpack_require__(2);
 var Entity = (function () {
-    function Entity(x, y, health, weapon, type) {
+    function Entity(x, y, health, weapon, type, modifier) {
         if (x === void 0) { x = 0; }
         if (y === void 0) { y = 0; }
         if (health === void 0) { health = 100; }
         if (weapon === void 0) { weapon = new Weapon_1.Weapon("Stick", new RandomRange_1.RandomRange(1, 3)); }
+        if (modifier === void 0) { modifier = 1; }
         this.xPos = x;
         this.yPos = y;
-        this.health = health;
+        this.health = health * modifier;
         this.weapon = weapon;
         this.type = type;
         this.isAlive = true;
     }
     Entity.prototype.attack = function (target) {
         if (target === this) {
-            throw "Cannot attack self!";
+            throw new Error("Cannot attack self!");
         }
         target.takeDamage(this.weapon.attackRange.random());
     };
@@ -764,7 +831,6 @@ var Hallway = (function () {
     Hallway.prototype.checkBoundaryCollision = function (room, direction, grid) {
         console.log("Direction: ", direction);
         console.log("Hallway: ", this);
-        //debugger;
         switch (direction) {
             case Enums_1.Direction.North:
                 if ((this.yPos - this.length) < 0)
@@ -831,8 +897,6 @@ var Room = (function () {
             var yCoord = this.yPos + j;
             for (var z = 0; z < this.width; z++) {
                 var xCoord = this.xPos + z;
-                if (!grid.cells[yCoord] || !grid.cells[yCoord][xCoord])
-                    debugger;
                 grid.cells[yCoord][xCoord].cellType = Enums_1.CellType.Ground;
             }
         }
@@ -840,6 +904,23 @@ var Room = (function () {
     return Room;
 }());
 exports.Room = Room;
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Coordinate = (function () {
+    function Coordinate(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    return Coordinate;
+}());
+exports.Coordinate = Coordinate;
 
 
 /***/ })

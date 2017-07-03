@@ -14,11 +14,11 @@ export class Entity implements IGameObject
 
     constructor(x: number = 0, y: number = 0, 
                 health = 100, weapon = new Weapon("Stick", new RandomRange(1 , 3)),
-                type: GameObjectType.Player | GameObjectType.Enemy)
+                type: GameObjectType.Player | GameObjectType.Enemy, modifier: number = 1)
     {
         this.xPos = x;
         this.yPos = y;
-        this.health = health;
+        this.health = health * modifier;
         this.weapon = weapon;
         this.type = type;
         this.isAlive = true;
@@ -28,7 +28,7 @@ export class Entity implements IGameObject
     {
         if (target === this)
         {
-            throw "Cannot attack self!";
+            throw new Error("Cannot attack self!");
         }
 
 

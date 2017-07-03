@@ -18,7 +18,7 @@ export class RogueLike extends React.Component<undefined, IRogueLikeState>
     {
         super(props);
 
-        let initPlayer: Entity = new Entity(0, 0, 100, new Weapon("Stick", new RandomRange(5 , 10)), GameObjectType.Player);
+        let initPlayer: Entity = new Entity(0, 0, 100, new Weapon("Stick", new RandomRange(5 , 10)), GameObjectType.Player, 1);
 
         this.state = {
             player: initPlayer
@@ -55,7 +55,7 @@ export class RogueLike extends React.Component<undefined, IRogueLikeState>
     startBattle = (enemy: Entity) => {
         if (enemy === this.state.player)
         {
-            throw "Player cannot be passed into startBattle method in RogueLike Component";
+            throw new Error("Player cannot be passed into startBattle method in RogueLike Component");
         }
         let player = this.state.player;
 

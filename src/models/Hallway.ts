@@ -114,7 +114,6 @@ export class Hallway
         console.log("Direction: ", direction);
         console.log("Hallway: ", this);
 
-        //debugger;
         switch(direction)
         {
             case Direction.North:

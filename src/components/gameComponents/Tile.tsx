@@ -33,11 +33,11 @@ export function Tile(props: ITileProps)
         {
             return (<td className="weapon"/>);
         }
-        //Render Exit
-        else if (props.cell.object.type === GameObjectType.ExitDoor)
-        {
-            return (<td className="exit-door"/>);
-        }
+    }
+    //Render Exit Door
+    else if (props.cell.cellType === CellType.Exit)
+    {
+        return (<td className="exit-door" />)
     }
     //Render Wall
     else if (props.cell.cellType === CellType.Wall)

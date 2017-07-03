@@ -16,6 +16,11 @@ export class RandomRange
         return Math.floor(Math.random() * (this.max - this.min + 1) + this.min);
     }
 
+    randomFloat(): number
+    {
+        return Math.random() * (this.max - this.min) + this.min;
+    }
+
     static getRangeInclusive(min: number, max: number)
     {
         return Math.floor(Math.random() * (max - min + 1) + min);

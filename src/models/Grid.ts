@@ -12,12 +12,12 @@ import { RandomRange } from './RandomRange';
 export class Grid
 {
     cells: Array<Array<Cell>>;
-    rooms: Array<Room>;
+    private rooms: Array<Room>;
 
-    roomSize: RandomRange;
-    hallwaySize: RandomRange;
+    private roomSize: RandomRange;
+    private hallwaySize: RandomRange;
 
-    numberOfRooms: RandomRange;
+    private numberOfRooms: RandomRange;
 
     constructor(width: number, height: number)
     {
@@ -59,7 +59,7 @@ export class Grid
         this.drawGrid()
     }
 
-    drawGrid()
+    private drawGrid()
     {
         let numberOfRooms: number = this.numberOfRooms.random();
 

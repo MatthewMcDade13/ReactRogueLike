@@ -1,7 +1,8 @@
 export enum CellType 
 {
     Wall,
-    Ground
+    Ground,
+    Exit
 }
 
 export enum GameObjectType 
@@ -10,7 +11,6 @@ export enum GameObjectType
     Enemy,
     Potion,
     Weapon,
-    ExitDoor,
     Empty
 }
 

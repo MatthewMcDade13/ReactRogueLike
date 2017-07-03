@@ -55,8 +55,6 @@ export class Room
             {
                 let xCoord: number = this.xPos + z;
 
-                if (!grid.cells[yCoord] || !grid.cells[yCoord][xCoord]) debugger;
-
                 grid.cells[yCoord][xCoord].cellType = CellType.Ground;
             }
         }

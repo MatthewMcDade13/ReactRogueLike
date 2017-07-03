@@ -4,6 +4,8 @@ import { CellType } from './Enums';
 import { Grid } from './Grid';
 import { Room } from './Room';
 
+//TODO: Clean up xPos and yPos and replace with Coordinate Object
+
 export class Hallway
 {
     length: number

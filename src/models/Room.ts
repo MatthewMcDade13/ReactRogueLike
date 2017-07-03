@@ -2,6 +2,8 @@ import { RandomRange } from './RandomRange';
 import { CellType } from './Enums';
 import { Grid } from './Grid';
 
+//TODO: Clean up xPos and yPos and replace with Coordinate Object
+
 export class Room
 {
     height: number;

@@ -3,6 +3,8 @@ import { GameObjectType } from './Enums';
 import { IGameObject } from './IGameObject';
 import { RandomRange } from './RandomRange';
 
+//TODO: Clean up xPos and yPos and replace with Coordinate Object
+
 export class Entity implements IGameObject
 {
     isAlive: boolean;

@@ -68,7 +68,7 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
         };
     }
 
-    componentDidMount()
+    componentDidMount(): void
     {        
         document.addEventListener("keydown", (event) => {            
             if ((event.keyCode >= 37 && event.keyCode <= 40) || //arrow keys
@@ -80,7 +80,7 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
         });
     }
 
-    componentDidUpdate(prevProps, prevState)
+    componentDidUpdate(prevProps, prevState): void
     {
         //If we updated the level, create a new one
         if (this.state.levelNumber !== prevState.levelNumber)
@@ -104,7 +104,7 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
         return new Coordinate(randX, randY);
     }
 
-    spawnEnemies(enemyRange: RandomRange, modifierRange: RandomRange, firstGrid?: Grid)
+    spawnEnemies(enemyRange: RandomRange, modifierRange: RandomRange, firstGrid?: Grid): void
     {
         let grid: Grid = firstGrid? firstGrid : this.state.grid;
         const level = firstGrid? 0 : this.state.levelNumber;
@@ -130,8 +130,9 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
         }
     }
 
-    spawnItems(potionHealthRange: RandomRange)
+    spawnItems(potionHealthRange: RandomRange): void
     {
+        //TODO: Finish this func
         const level: number = this.state.levelNumber;
         let weapon: Weapon = null;
 
@@ -211,7 +212,7 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
     }
     
 
-    componentWillUnmount()
+    componentWillUnmount(): void
     {
 
     }
@@ -325,16 +326,14 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
 
             this.spawnEnemies(new RandomRange(15, 16), new RandomRange(0.55, 0.75));
             break;
-        }
-
-        
+        }        
 
         this.setState({
             grid: grid
         });
     }
 
-    render()
+    render(): JSX.Element
     {
         let keyCounter: number = 0;
         return(

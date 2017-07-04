@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Entity } from '../../models/Entity';
+import { EntityLevel } from '../../models/EntityLevel';
 import { RandomRange } from '../../models/RandomRange';
 import { GameObjectType } from '../../models/Enums';
 import { IGameObject } from '../../models/IGameObject';
@@ -15,21 +16,23 @@ import { Tile } from './Tile';
 export interface IGameLevelState
 {
     grid: Grid
-    levelNumber: number;
 }
 
 export interface IGameLevelProps
 {
+    level: number;
     player: Entity;
     changePlayerDirection(direction: string);
     startBattle(enemy: Entity);
     healPlayer(potion: Potion);
     equipWeapon(weapon: Weapon);
     spawnPlayer(xPos: number, yPos: number);
+    startNewLevel();
 }
 
 export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
 {
+    maxPotions: number = 5;
 
     constructor(props: IGameLevelProps)
     {
@@ -44,27 +47,25 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
         /*********************************
         **For Tests Only, Clear out ASAP**
         **********************************/
-        let playerTile: CellType;
-        let position: Coordinate = null;
+        this.spawnPlayer(initGrid);
+        // let playerTile: CellType;
+        // let position: Coordinate = null;
 
-        position = this.getRandomLocation(initGrid);
+        // position = this.getRandomLocation(initGrid);
 
-        props.spawnPlayer(position.x, position.y);        
+        // props.spawnPlayer(position.x, position.y);        
 
-        initGrid.cells[position.y][position.x].object = props.player;
+        // initGrid.cells[position.y][position.x].object = props.player;
 
-        let exitTile: CellType;
-        position = this.getRandomLocation(initGrid);
+        this.spawnExit(initGrid);
 
-        initGrid.cells[position.y][position.x].cellType = CellType.Exit;
-        this.spawnEnemies(new RandomRange(3, 5), new RandomRange(0.1, 0.3), initGrid);
+        this.spawnEnemies(new RandomRange(1, 2), new RandomRange(3, 5), new RandomRange(0.1, 0.3), initGrid);
+        this.spawnItems(new RandomRange(10, 20), initGrid);
 
         /**End Here**/
-        
 
         this.state = {
-            grid: initGrid,
-            levelNumber: 0
+            grid: initGrid
         };
     }
 
@@ -83,7 +84,7 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
     componentDidUpdate(prevProps, prevState): void
     {
         //If we updated the level, create a new one
-        if (this.state.levelNumber !== prevState.levelNumber)
+        if (this.props.level !== prevProps.level)
         {
             this.createNewLevel();
         }
@@ -98,16 +99,34 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
             randX = RandomRange.getRangeExclusive(0, grid.cells[0].length);
             randY = RandomRange.getRangeExclusive(0, grid.cells.length);
         }
-        while(grid.cells[randY][randX].cellType === CellType.Wall ||
-              grid.cells[randY][randX].cellType === CellType.Exit)
+        while(grid.cells[randY][randX].cellType !== CellType.Ground ||
+              grid.cells[randY][randX].object !== null)
 
         return new Coordinate(randX, randY);
     }
 
-    spawnEnemies(enemyRange: RandomRange, modifierRange: RandomRange, firstGrid?: Grid): void
+    spawnPlayer(firstGrid?: Grid)
     {
         let grid: Grid = firstGrid? firstGrid : this.state.grid;
-        const level = firstGrid? 0 : this.state.levelNumber;
+        let randPos: Coordinate = this.getRandomLocation(grid);
+
+        this.props.spawnPlayer(randPos.x, randPos.y);
+
+        grid.cells[randPos.y][randPos.x].object = this.props.player;
+    }
+
+    spawnExit(firstGrid?: Grid): void
+    {
+        let grid: Grid = firstGrid? firstGrid : this.state.grid;
+        let randPos: Coordinate = this.getRandomLocation(grid);
+
+        grid.cells[randPos.y][randPos.x].cellType = CellType.Exit;
+    }
+
+    spawnEnemies(enemyLevelRange: RandomRange, enemyRange: RandomRange, modifierRange: RandomRange, firstGrid?: Grid): void
+    {
+        let grid: Grid = firstGrid? firstGrid : this.state.grid;
+        const level = firstGrid? 0 : this.props.level;
          
         let enemies: number = enemyRange.random();
 
@@ -125,22 +144,51 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
         {
             position = this.getRandomLocation(grid)
             
-            enemy = new Entity(position.x, position.y, 100, new Weapon("Claw", attackRange), GameObjectType.Enemy, modifierRange.randomFloat());
+            enemy = new Entity(position.x, position.y, 100,
+                               new Weapon("Claw", attackRange), 
+                               GameObjectType.Enemy, 
+                               modifierRange.randomFloat(), 
+                               new EntityLevel(enemyLevelRange.random()));
+
             grid.cells[position.y][position.x].object = enemy;
         }
+
+        this.setState({
+            grid: grid
+        });
     }
 
-    spawnItems(potionHealthRange: RandomRange): void
+    spawnItems(potionHealthRange: RandomRange, firstGrid?: Grid): void
     {
         //TODO: Finish this func
-        const level: number = this.state.levelNumber;
-        let weapon: Weapon = null;
+        let grid: Grid = firstGrid? firstGrid : this.state.grid;
+        const level: number = firstGrid? 0 : this.props.level;
 
-        if (level === 0) weapon = new Weapon("Sword", new RandomRange(3, 25))
-        else if (level === 1) weapon = new Weapon("Axe", new RandomRange(10, 35))
-        else if (level === 2) weapon = new Weapon("Mace", new RandomRange(25, 40))
-        else if (level === 3) weapon = new Weapon("Claymore", new RandomRange(40, 48))
-        else if (level === 4) weapon = new Weapon("Katana", new RandomRange(55, 78))
+        let potion: Potion = null;       
+        let weapon: Weapon = null;
+        let randPos: Coordinate = null;
+
+        let potions: number = RandomRange.getRangeInclusive(1, this.maxPotions);
+
+        if (level === 0) weapon = new Weapon("Sword", new RandomRange(3, 25));
+        else if (level === 1) weapon = new Weapon("Axe", new RandomRange(10, 35));
+        else if (level === 2) weapon = new Weapon("Mace", new RandomRange(25, 40));
+        else if (level === 3) weapon = new Weapon("Claymore", new RandomRange(40, 48));
+        else if (level === 4) weapon = new Weapon("Katana", new RandomRange(55, 78));
+
+        randPos = this.getRandomLocation(grid);
+        grid.cells[randPos.y][randPos.x].object = weapon;
+
+        for (let i = 0; i < potions; i++)
+        {
+            potion = new Potion(potionHealthRange.random());
+            randPos = this.getRandomLocation(grid);
+            grid.cells[randPos.y][randPos.x].object = potion;
+        }
+
+        this.setState({
+            grid: grid
+        });
     }
 
     //Checks if next cell exists (is not an index out of range) and tries to move it it
@@ -288,9 +336,7 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
         else if (board.cells[yNextPos][xNextPos].cellType === CellType.Exit)
         {
             //start new level
-            this.setState({
-                    levelNumber: this.state.levelNumber + 1
-                });
+            this.props.startNewLevel();
         }
         //Otherwise, check if it is a wall
         else if (board.cells[yNextPos][xNextPos].cellType === CellType.Wall)
@@ -303,28 +349,35 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
 
     createNewLevel = () => {
         let grid: Grid = this.state.grid;
-        let level: number = this.state.levelNumber;
+        let level: number = this.props.level;
 
         grid.createLevel();
+        this.spawnPlayer();
+        this.spawnExit();
 
         //Populate the level
         switch (level)
         {
             case 1:
-            this.spawnEnemies(new RandomRange(3, 5), new RandomRange(0.1, 0.3));
+
+            this.spawnEnemies(new RandomRange(1, 3), new RandomRange(3, 5), new RandomRange(0.1, 0.3));
+            this.spawnItems(new RandomRange(20, 25));
 
             break;            
             case 2:
 
-            this.spawnEnemies(new RandomRange(5, 10), new RandomRange(0.3, 0.42));
+            this.spawnEnemies(new RandomRange(2, 5),new RandomRange(5, 10), new RandomRange(0.3, 0.42));
+            this.spawnItems(new RandomRange(25, 45));
             break;
             case 3:
 
-            this.spawnEnemies(new RandomRange(11, 15), new RandomRange(0.42, 0.55));
+            this.spawnEnemies(new RandomRange(3, 7),new RandomRange(11, 15), new RandomRange(0.42, 0.55));
+            this.spawnItems(new RandomRange(35, 50));
             break;
             case 4:
 
-            this.spawnEnemies(new RandomRange(15, 16), new RandomRange(0.55, 0.75));
+            this.spawnEnemies(new RandomRange(5, 10),new RandomRange(15, 16), new RandomRange(0.55, 0.75));
+            this.spawnItems(new RandomRange(50, 75));
             break;
         }        
 

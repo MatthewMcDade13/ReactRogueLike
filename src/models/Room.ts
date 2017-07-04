@@ -3,8 +3,6 @@ import { CellType } from './Enums';
 import { Grid } from './Grid';
 import  { Coordinate } from './Coordinate';
 
-//TODO: Clean up xPos and yPos and replace with Coordinate Object
-
 export class Room
 {
     height: number;

@@ -6,10 +6,12 @@ import { GameObjectType } from '../models/Enums';
 import { Weapon } from '../models/Weapon';
 import { Potion } from '../models/Potion';
 import { PlayerStats } from './gameComponents/PlayerStats';
+import { EntityLevel } from '../models/EntityLevel';
 
 export interface IRogueLikeState
 {
-    player: Entity
+    player: Entity;
+    level: number;
 }
 
 export class RogueLike extends React.Component<undefined, IRogueLikeState>
@@ -21,8 +23,17 @@ export class RogueLike extends React.Component<undefined, IRogueLikeState>
         let initPlayer: Entity = new Entity(0, 0, 100, new Weapon("Stick", new RandomRange(5 , 10)), GameObjectType.Player, 1);
 
         this.state = {
-            player: initPlayer
+            player: initPlayer,
+            level: 0
         };
+    }
+
+    startNewLevel = () =>
+    {
+        console.log(this);
+        this.setState({
+            level: this.state.level + 1
+        });
     }
 
     changePlayerPosition = (direction: string) => {
@@ -52,15 +63,15 @@ export class RogueLike extends React.Component<undefined, IRogueLikeState>
         }
     }
 
-    startBattle = (enemy: Entity) => {
+     startBattle = (enemy: Entity) => {
         if (enemy === this.state.player)
         {
             throw new Error("Player cannot be passed into startBattle method in RogueLike Component");
         }
         let player = this.state.player;
-
-        player.attack(enemy);
+       
         enemy.attack(player);
+        player.attack(enemy);
 
         if (!player.isAlive)
         {
@@ -71,6 +82,8 @@ export class RogueLike extends React.Component<undefined, IRogueLikeState>
         this.setState({
             player: player
         })
+
+        console.log("in startBattle: ", player.health);
     }
 
     healPlayer = (potion: Potion) => {
@@ -109,13 +122,15 @@ export class RogueLike extends React.Component<undefined, IRogueLikeState>
     {
         return(
             <div>
-               <PlayerStats player={this.state.player}/>
+               <PlayerStats player={this.state.player} level={this.state.level}/>
                <GameLevel
+               level={this.state.level}
                spawnPlayer={this.spawnPlayer}
                equipWeapon={this.equipWeapon}
                healPlayer={this.healPlayer}
                startBattle={this.startBattle} 
                changePlayerDirection={this.changePlayerPosition}
+               startNewLevel={this.startNewLevel}
                player={this.state.player}/>
             </div>
         );

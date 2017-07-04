@@ -8,7 +8,7 @@ import { Room } from './Room';
 import { Hallway } from './Hallway';
 import { RandomRange } from './RandomRange'; 
 
-//TODO: Perhaps have this object take care of generating enemies, weapons, potion, and level layout?
+
 export class Grid
 {
     cells: Array<Array<Cell>>;

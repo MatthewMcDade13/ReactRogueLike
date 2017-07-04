@@ -5,8 +5,6 @@ import { Grid } from './Grid';
 import { Room } from './Room';
 import { Coordinate } from './Coordinate';
 
-//TODO: Clean up pos.x and pos.y and replace with Coordinate Object
-
 export class Hallway
 {
     length: number
@@ -114,8 +112,6 @@ export class Hallway
 
     checkBoundaryCollision(room: Room, direction: Direction, grid: Grid): boolean
     {
-        console.log("Direction: ", direction);
-        console.log("Hallway: ", this);
 
         switch(direction)
         {

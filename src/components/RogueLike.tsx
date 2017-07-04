@@ -32,19 +32,19 @@ export class RogueLike extends React.Component<undefined, IRogueLikeState>
 
         if (playerDir === "up")
         {
-            player.yPos--;
+            player.pos.y--;
         }
         else if (playerDir === "left")
         {
-            player.xPos--;
+            player.pos.x--;
         }
         else if (playerDir === "right")
         {
-            player.xPos++;
+            player.pos.x++;
         }
         else if (playerDir === "down")
         {
-            player.yPos++;
+            player.pos.y++;
         }
         else
         {
@@ -97,8 +97,8 @@ export class RogueLike extends React.Component<undefined, IRogueLikeState>
     {
         let player = this.state.player;
 
-        player.xPos = xPos;
-        player.yPos = yPos;
+        player.pos.x = xPos;
+        player.pos.y = yPos;
 
         this.setState({
             player: player

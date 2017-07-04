@@ -2,14 +2,14 @@ import { Weapon } from './Weapon';
 import { GameObjectType } from './Enums';
 import { IGameObject } from './IGameObject';
 import { RandomRange } from './RandomRange';
+import { Coordinate } from './Coordinate';
 
 //TODO: Clean up xPos and yPos and replace with Coordinate Object
 
 export class Entity implements IGameObject
 {
     isAlive: boolean;
-    xPos: number;
-    yPos: number;
+    pos: Coordinate;
     health: number;
     weapon: Weapon;
     type: GameObjectType.Player | GameObjectType.Enemy;
@@ -18,8 +18,7 @@ export class Entity implements IGameObject
                 health = 100, weapon = new Weapon("Stick", new RandomRange(1 , 3)),
                 type: GameObjectType.Player | GameObjectType.Enemy, modifier: number = 1)
     {
-        this.xPos = x;
-        this.yPos = y;
+        this.pos = new Coordinate(x, y);
         this.health = health * modifier;
         this.weapon = weapon;
         this.type = type;

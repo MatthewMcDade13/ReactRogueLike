@@ -1,6 +1,7 @@
 import { RandomRange } from './RandomRange';
 import { CellType } from './Enums';
 import { Grid } from './Grid';
+import  { Coordinate } from './Coordinate';
 
 //TODO: Clean up xPos and yPos and replace with Coordinate Object
 
@@ -10,8 +11,7 @@ export class Room
     width: number;
 
     //x and y position of room is top left corner of room
-    xPos: number;
-    yPos: number;
+    pos: Coordinate;
 
     constructor(heightRange: RandomRange, widthRange: RandomRange, xPos: number, yPos: number)
     {
@@ -20,15 +20,14 @@ export class Room
 
         this.height = roomHeight;
         this.width = roomWidth;
-
-        this.xPos = xPos;
-        this.yPos = yPos;
+        
+        this.pos = new Coordinate(xPos, yPos);
     }
 
     draw(grid: Grid)
     {
-        let xOffset: number = this.xPos + this.width;
-        let yOffset: number = this.yPos + this.height;
+        let xOffset: number = this.pos.x + this.width;
+        let yOffset: number = this.pos.y + this.height;
         let gridFirstDimension: number = grid.cells[0].length - 1;
         let gridSecondDimension: number = grid.cells.length - 1;
         
@@ -38,24 +37,24 @@ export class Room
         if (xOffset > gridFirstDimension)
         {
             let overflow = xOffset - (gridFirstDimension);
-            this.xPos -= overflow;
+            this.pos.x -= overflow;
         }
         
         if (yOffset > gridSecondDimension)
         {
             let overflow = yOffset - (gridSecondDimension);
-            this.yPos -= overflow;
+            this.pos.y -= overflow;
         }
 
 
 
         for (let j = 0; j < this.height; j++)
         {
-            let yCoord: number = this.yPos + j;
+            let yCoord: number = this.pos.y + j;
 
             for (let z = 0; z < this.width; z++)
             {
-                let xCoord: number = this.xPos + z;
+                let xCoord: number = this.pos.x + z;
 
                 grid.cells[yCoord][xCoord].cellType = CellType.Ground;
             }

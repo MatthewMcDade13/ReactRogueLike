@@ -77,8 +77,8 @@ export class Grid
             randCol = Math.floor(Math.random() * this.cells[0].length);
             room = new Room(this.roomSize, this.roomSize, randCol, randRow);
         } 
-        while((room.xPos + room.width) > this.cells[0].length - 1 ||
-            (room.yPos + room.height) > this.cells.length - 1)
+        while((room.pos.x + room.width) > this.cells[0].length - 1 ||
+            (room.pos.y + room.height) > this.cells.length - 1)
 
         //create rooms
         for (let i = 0; i < numberOfRooms; i++)
@@ -88,25 +88,25 @@ export class Grid
 
             room.draw(this);
 
-            hallway = new Hallway(this.hallwaySize, room.xPos, room.yPos, randDir);
+            hallway = new Hallway(this.hallwaySize, room.pos.x, room.pos.y, randDir);
 
             hallway.draw(this, room);            
             
-            room = new Room(this.roomSize, this.roomSize, hallway.endX, hallway.endY);
+            room = new Room(this.roomSize, this.roomSize, hallway.endPos.x, hallway.endPos.y);
 
             //Make sure that if we are headed north or west we offset the room
             //starting position by its width/height so that it doesnt overlap
             //the newly drawn hallway that leads to it
             if (hallway.direction === Direction.North)
-                room.yPos -= (room.height - 1);
+                room.pos.y -= (room.height - 1);
                 
             else if (hallway.direction === Direction.West)
-                room.xPos -= (room.width - 1);
+                room.pos.x -= (room.width - 1);
 
             //ensure room start does not go out of bounds of the grid,
             //if so just set to zero
-            room.xPos < 0 ? room.xPos = 0 : null;
-            room.yPos < 0 ? room.yPos = 0 : null;
+            room.pos.x < 0 ? room.pos.x = 0 : null;
+            room.pos.y < 0 ? room.pos.y = 0 : null;
                 
         }
 

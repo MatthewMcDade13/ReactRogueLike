@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -156,6 +156,64 @@ exports.Weapon = Weapon;
 
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
+var Coordinate = (function () {
+    function Coordinate(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    return Coordinate;
+}());
+exports.Coordinate = Coordinate;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Weapon_1 = __webpack_require__(3);
+var RandomRange_1 = __webpack_require__(2);
+var Coordinate_1 = __webpack_require__(4);
+//TODO: Clean up xPos and yPos and replace with Coordinate Object
+var Entity = (function () {
+    function Entity(x, y, health, weapon, type, modifier) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        if (health === void 0) { health = 100; }
+        if (weapon === void 0) { weapon = new Weapon_1.Weapon("Stick", new RandomRange_1.RandomRange(1, 3)); }
+        if (modifier === void 0) { modifier = 1; }
+        this.pos = new Coordinate_1.Coordinate(x, y);
+        this.health = health * modifier;
+        this.weapon = weapon;
+        this.type = type;
+        this.isAlive = true;
+    }
+    Entity.prototype.attack = function (target) {
+        if (target === this) {
+            throw new Error("Cannot attack self!");
+        }
+        target.takeDamage(this.weapon.attackRange.random());
+    };
+    Entity.prototype.takeDamage = function (damage) {
+        this.health = this.health - damage;
+        if (this.health <= 0) {
+            this.isAlive = false;
+        }
+    };
+    return Entity;
+}());
+exports.Entity = Entity;
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -168,12 +226,12 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(1);
-var GameLevel_1 = __webpack_require__(7);
-var Entity_1 = __webpack_require__(12);
+var GameLevel_1 = __webpack_require__(9);
+var Entity_1 = __webpack_require__(5);
 var RandomRange_1 = __webpack_require__(2);
 var Enums_1 = __webpack_require__(0);
 var Weapon_1 = __webpack_require__(3);
-var PlayerStats_1 = __webpack_require__(8);
+var PlayerStats_1 = __webpack_require__(10);
 var RogueLike = (function (_super) {
     __extends(RogueLike, _super);
     function RogueLike(props) {
@@ -182,16 +240,16 @@ var RogueLike = (function (_super) {
             var playerDir = direction.toLowerCase();
             var player = _this.state.player;
             if (playerDir === "up") {
-                player.yPos--;
+                player.pos.y--;
             }
             else if (playerDir === "left") {
-                player.xPos--;
+                player.pos.x--;
             }
             else if (playerDir === "right") {
-                player.xPos++;
+                player.pos.x++;
             }
             else if (playerDir === "down") {
-                player.yPos++;
+                player.pos.y++;
             }
             else {
                 throw "Player direction was not specified";
@@ -228,8 +286,8 @@ var RogueLike = (function (_super) {
         };
         _this.spawnPlayer = function (xPos, yPos) {
             var player = _this.state.player;
-            player.xPos = xPos;
-            player.yPos = yPos;
+            player.pos.x = xPos;
+            player.pos.y = yPos;
             _this.setState({
                 player: player
             });
@@ -251,13 +309,13 @@ exports.RogueLike = RogueLike;
 
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, exports) {
 
 module.exports = ReactDOM;
 
 /***/ }),
-/* 6 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -271,7 +329,7 @@ exports.BoardRow = BoardRow;
 
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -288,15 +346,15 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(1);
-var Entity_1 = __webpack_require__(12);
+var Entity_1 = __webpack_require__(5);
 var RandomRange_1 = __webpack_require__(2);
 var Enums_1 = __webpack_require__(0);
 var Weapon_1 = __webpack_require__(3);
-var Grid_1 = __webpack_require__(13);
-var Coordinate_1 = __webpack_require__(16);
+var Grid_1 = __webpack_require__(14);
+var Coordinate_1 = __webpack_require__(4);
 var Enums_2 = __webpack_require__(0);
-var BoardRow_1 = __webpack_require__(6);
-var Tile_1 = __webpack_require__(9);
+var BoardRow_1 = __webpack_require__(8);
+var Tile_1 = __webpack_require__(11);
 var GameLevel = (function (_super) {
     __extends(GameLevel, _super);
     function GameLevel(props) {
@@ -308,9 +366,9 @@ var GameLevel = (function (_super) {
             var grid = _this.state.grid;
             //move left
             if (direction === 37 || direction === 65) {
-                if (!_this.detectCollision(player.yPos, player.xPos - 1)) {
-                    grid.cells[player.yPos][player.xPos].object = null;
-                    grid.cells[player.yPos][player.xPos - 1].object = player;
+                if (!_this.detectCollision(player.pos.y, player.pos.x - 1)) {
+                    grid.cells[player.pos.y][player.pos.x].object = null;
+                    grid.cells[player.pos.y][player.pos.x - 1].object = player;
                     _this.props.changePlayerDirection("left");
                 }
                 else {
@@ -318,9 +376,9 @@ var GameLevel = (function (_super) {
                 }
             }
             else if (direction === 38 || direction === 87) {
-                if (!_this.detectCollision(player.yPos - 1, player.xPos)) {
-                    grid.cells[player.yPos][player.xPos].object = null;
-                    grid.cells[player.yPos - 1][player.xPos].object = player;
+                if (!_this.detectCollision(player.pos.y - 1, player.pos.x)) {
+                    grid.cells[player.pos.y][player.pos.x].object = null;
+                    grid.cells[player.pos.y - 1][player.pos.x].object = player;
                     _this.props.changePlayerDirection("up");
                 }
                 else {
@@ -328,9 +386,9 @@ var GameLevel = (function (_super) {
                 }
             }
             else if (direction === 39 || direction === 68) {
-                if (!_this.detectCollision(player.yPos, player.xPos + 1)) {
-                    grid.cells[player.yPos][player.xPos].object = null;
-                    grid.cells[player.yPos][player.xPos + 1].object = player;
+                if (!_this.detectCollision(player.pos.y, player.pos.x + 1)) {
+                    grid.cells[player.pos.y][player.pos.x].object = null;
+                    grid.cells[player.pos.y][player.pos.x + 1].object = player;
                     _this.props.changePlayerDirection("right");
                 }
                 else {
@@ -338,9 +396,9 @@ var GameLevel = (function (_super) {
                 }
             }
             else if (direction === 40 || direction === 83) {
-                if (!_this.detectCollision(player.yPos + 1, player.xPos)) {
-                    grid.cells[player.yPos][player.xPos].object = null;
-                    grid.cells[player.yPos + 1][player.xPos].object = player;
+                if (!_this.detectCollision(player.pos.y + 1, player.pos.x)) {
+                    grid.cells[player.pos.y][player.pos.x].object = null;
+                    grid.cells[player.pos.y + 1][player.pos.x].object = player;
                     _this.props.changePlayerDirection("down");
                 }
                 else {
@@ -504,6 +562,7 @@ var GameLevel = (function (_super) {
         }
     };
     GameLevel.prototype.spawnItems = function (potionHealthRange) {
+        //TODO: Finish this func
         var level = this.state.levelNumber;
         var weapon = null;
         if (level === 0)
@@ -531,7 +590,7 @@ exports.GameLevel = GameLevel;
 
 
 /***/ }),
-/* 8 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -559,7 +618,7 @@ exports.PlayerStats = PlayerStats;
 
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -597,20 +656,20 @@ exports.Tile = Tile;
 
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(1);
-var ReactDOM = __webpack_require__(5);
-var RogueLike_1 = __webpack_require__(4);
+var ReactDOM = __webpack_require__(7);
+var RogueLike_1 = __webpack_require__(6);
 ReactDOM.render(React.createElement(RogueLike_1.RogueLike, null), document.getElementById("app"));
 
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -634,56 +693,16 @@ exports.Cell = Cell;
 
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Weapon_1 = __webpack_require__(3);
-var RandomRange_1 = __webpack_require__(2);
-var Entity = (function () {
-    function Entity(x, y, health, weapon, type, modifier) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        if (health === void 0) { health = 100; }
-        if (weapon === void 0) { weapon = new Weapon_1.Weapon("Stick", new RandomRange_1.RandomRange(1, 3)); }
-        if (modifier === void 0) { modifier = 1; }
-        this.xPos = x;
-        this.yPos = y;
-        this.health = health * modifier;
-        this.weapon = weapon;
-        this.type = type;
-        this.isAlive = true;
-    }
-    Entity.prototype.attack = function (target) {
-        if (target === this) {
-            throw new Error("Cannot attack self!");
-        }
-        target.takeDamage(this.weapon.attackRange.random());
-    };
-    Entity.prototype.takeDamage = function (damage) {
-        this.health = this.health - damage;
-        if (this.health <= 0) {
-            this.isAlive = false;
-        }
-    };
-    return Entity;
-}());
-exports.Entity = Entity;
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Cell_1 = __webpack_require__(11);
+var Cell_1 = __webpack_require__(13);
 var Enums_1 = __webpack_require__(0);
-var Room_1 = __webpack_require__(15);
-var Hallway_1 = __webpack_require__(14);
+var Room_1 = __webpack_require__(16);
+var Hallway_1 = __webpack_require__(15);
 var RandomRange_1 = __webpack_require__(2);
 //TODO: Perhaps have this object take care of generating enemies, weapons, potion, and level layout?
 var Grid = (function () {
@@ -725,27 +744,27 @@ var Grid = (function () {
             randRow = Math.floor(Math.random() * this.cells.length);
             randCol = Math.floor(Math.random() * this.cells[0].length);
             room = new Room_1.Room(this.roomSize, this.roomSize, randCol, randRow);
-        } while ((room.xPos + room.width) > this.cells[0].length - 1 ||
-            (room.yPos + room.height) > this.cells.length - 1);
+        } while ((room.pos.x + room.width) > this.cells[0].length - 1 ||
+            (room.pos.y + room.height) > this.cells.length - 1);
         //create rooms
         for (var i = 0; i < numberOfRooms; i++) {
             //get a random direction for the hallawy
             randDir = RandomRange_1.RandomRange.getRangeInclusive(0, 3);
             room.draw(this);
-            hallway = new Hallway_1.Hallway(this.hallwaySize, room.xPos, room.yPos, randDir);
+            hallway = new Hallway_1.Hallway(this.hallwaySize, room.pos.x, room.pos.y, randDir);
             hallway.draw(this, room);
-            room = new Room_1.Room(this.roomSize, this.roomSize, hallway.endX, hallway.endY);
+            room = new Room_1.Room(this.roomSize, this.roomSize, hallway.endPos.x, hallway.endPos.y);
             //Make sure that if we are headed north or west we offset the room
             //starting position by its width/height so that it doesnt overlap
             //the newly drawn hallway that leads to it
             if (hallway.direction === Enums_1.Direction.North)
-                room.yPos -= (room.height - 1);
+                room.pos.y -= (room.height - 1);
             else if (hallway.direction === Enums_1.Direction.West)
-                room.xPos -= (room.width - 1);
+                room.pos.x -= (room.width - 1);
             //ensure room start does not go out of bounds of the grid,
             //if so just set to zero
-            room.xPos < 0 ? room.xPos = 0 : null;
-            room.yPos < 0 ? room.yPos = 0 : null;
+            room.pos.x < 0 ? room.pos.x = 0 : null;
+            room.pos.y < 0 ? room.pos.y = 0 : null;
         }
         //draw last room so that we dont end with a hallway
         room.draw(this);
@@ -756,7 +775,7 @@ exports.Grid = Grid;
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -765,12 +784,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var RandomRange_1 = __webpack_require__(2);
 var Enums_1 = __webpack_require__(0);
 var Enums_2 = __webpack_require__(0);
+var Coordinate_1 = __webpack_require__(4);
+//TODO: Clean up pos.x and pos.y and replace with Coordinate Object
 var Hallway = (function () {
     function Hallway(lengthRange, xPos, yPos, direction) {
         var hallwayLength = lengthRange.random();
         this.length = hallwayLength;
-        this.xPos = xPos;
-        this.yPos = yPos;
+        this.pos = new Coordinate_1.Coordinate(xPos, yPos);
+        //default values, will be set later when hallway is drawn
+        this.endPos = new Coordinate_1.Coordinate(0, 0);
         this.direction = direction;
     }
     Hallway.prototype.draw = function (grid, room) {
@@ -783,48 +805,48 @@ var Hallway = (function () {
         switch (this.direction) {
             case Enums_1.Direction.North:
                 //Find the offset of the hallway
-                this.xPos = this.offSetCoord(this.xPos, room.width);
+                this.pos.x = this.offSetCoord(this.pos.x, room.width);
                 //draw the hallway
-                yCoord = this.yPos;
+                yCoord = this.pos.y;
                 for (var i = 0; i < this.length; i++) {
-                    grid.cells[yCoord][this.xPos].cellType = Enums_2.CellType.Ground;
+                    grid.cells[yCoord][this.pos.x].cellType = Enums_2.CellType.Ground;
                     yCoord--;
                 }
                 //set end position for new room to be made
-                this.endX = this.xPos;
-                this.endY = yCoord;
+                this.endPos.x = this.pos.x;
+                this.endPos.y = yCoord;
                 break;
             case Enums_1.Direction.East:
-                this.xPos += room.width;
-                this.yPos = this.offSetCoord(this.yPos, room.height);
-                xCoord = this.xPos;
+                this.pos.x += room.width;
+                this.pos.y = this.offSetCoord(this.pos.y, room.height);
+                xCoord = this.pos.x;
                 for (var i = 0; i < this.length; i++) {
-                    grid.cells[this.yPos][xCoord].cellType = Enums_2.CellType.Ground;
+                    grid.cells[this.pos.y][xCoord].cellType = Enums_2.CellType.Ground;
                     xCoord++;
                 }
-                this.endX = xCoord;
-                this.endY = this.yPos;
+                this.endPos.x = xCoord;
+                this.endPos.y = this.pos.y;
                 break;
             case Enums_1.Direction.West:
-                this.yPos = this.offSetCoord(this.yPos, room.height);
-                xCoord = this.xPos;
+                this.pos.y = this.offSetCoord(this.pos.y, room.height);
+                xCoord = this.pos.x;
                 for (var i = 0; i < this.length; i++) {
-                    grid.cells[this.yPos][xCoord].cellType = Enums_2.CellType.Ground;
+                    grid.cells[this.pos.y][xCoord].cellType = Enums_2.CellType.Ground;
                     xCoord--;
                 }
-                this.endX = xCoord;
-                this.endY = this.yPos;
+                this.endPos.x = xCoord;
+                this.endPos.y = this.pos.y;
                 break;
             case Enums_1.Direction.South:
-                this.xPos = this.offSetCoord(this.xPos, room.width);
-                this.yPos += room.height;
-                yCoord = this.yPos;
+                this.pos.x = this.offSetCoord(this.pos.x, room.width);
+                this.pos.y += room.height;
+                yCoord = this.pos.y;
                 for (var i = 0; i < this.length; i++) {
-                    grid.cells[yCoord][this.xPos].cellType = Enums_2.CellType.Ground;
+                    grid.cells[yCoord][this.pos.x].cellType = Enums_2.CellType.Ground;
                     yCoord++;
                 }
-                this.endX = this.xPos;
-                this.endY = yCoord;
+                this.endPos.x = this.pos.x;
+                this.endPos.y = yCoord;
                 break;
         }
     };
@@ -833,20 +855,20 @@ var Hallway = (function () {
         console.log("Hallway: ", this);
         switch (direction) {
             case Enums_1.Direction.North:
-                if ((this.yPos - this.length) < 0)
+                if ((this.pos.y - this.length) < 0)
                     return true;
                 break;
             case Enums_1.Direction.East:
                 //we must account for the room width here as well
-                if (((this.xPos + room.width) + this.length) > grid.cells.length - 1)
+                if (((this.pos.x + room.width) + this.length) > grid.cells.length - 1)
                     return true;
                 break;
             case Enums_1.Direction.West:
-                if ((this.xPos - this.length) < 0)
+                if ((this.pos.x - this.length) < 0)
                     return true;
                 break;
             case Enums_1.Direction.South:
-                if (((this.yPos + room.height) + this.length) > grid.cells.length - 1)
+                if (((this.pos.y + room.height) + this.length) > grid.cells.length - 1)
                     return true;
                 break;
         }
@@ -861,25 +883,26 @@ exports.Hallway = Hallway;
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Enums_1 = __webpack_require__(0);
+var Coordinate_1 = __webpack_require__(4);
+//TODO: Clean up xPos and yPos and replace with Coordinate Object
 var Room = (function () {
     function Room(heightRange, widthRange, xPos, yPos) {
         var roomHeight = heightRange.random();
         var roomWidth = heightRange.random();
         this.height = roomHeight;
         this.width = roomWidth;
-        this.xPos = xPos;
-        this.yPos = yPos;
+        this.pos = new Coordinate_1.Coordinate(xPos, yPos);
     }
     Room.prototype.draw = function (grid) {
-        var xOffset = this.xPos + this.width;
-        var yOffset = this.yPos + this.height;
+        var xOffset = this.pos.x + this.width;
+        var yOffset = this.pos.y + this.height;
         var gridFirstDimension = grid.cells[0].length - 1;
         var gridSecondDimension = grid.cells.length - 1;
         //If room is going to go outside the bounds of the grid,
@@ -887,16 +910,16 @@ var Room = (function () {
         //grid does not go out of bounds
         if (xOffset > gridFirstDimension) {
             var overflow = xOffset - (gridFirstDimension);
-            this.xPos -= overflow;
+            this.pos.x -= overflow;
         }
         if (yOffset > gridSecondDimension) {
             var overflow = yOffset - (gridSecondDimension);
-            this.yPos -= overflow;
+            this.pos.y -= overflow;
         }
         for (var j = 0; j < this.height; j++) {
-            var yCoord = this.yPos + j;
+            var yCoord = this.pos.y + j;
             for (var z = 0; z < this.width; z++) {
-                var xCoord = this.xPos + z;
+                var xCoord = this.pos.x + z;
                 grid.cells[yCoord][xCoord].cellType = Enums_1.CellType.Ground;
             }
         }
@@ -904,23 +927,6 @@ var Room = (function () {
     return Room;
 }());
 exports.Room = Room;
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Coordinate = (function () {
-    function Coordinate(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    return Coordinate;
-}());
-exports.Coordinate = Coordinate;
 
 
 /***/ })

@@ -3,18 +3,17 @@ import { Direction } from './Enums';
 import { CellType } from './Enums';
 import { Grid } from './Grid';
 import { Room } from './Room';
+import { Coordinate } from './Coordinate';
 
-//TODO: Clean up xPos and yPos and replace with Coordinate Object
+//TODO: Clean up pos.x and pos.y and replace with Coordinate Object
 
 export class Hallway
 {
     length: number
 
-    xPos: number;
-    yPos: number;
+    pos: Coordinate;
 
-    endX: number;
-    endY: number;
+    endPos: Coordinate;
 
     direction: Direction;
 
@@ -23,8 +22,10 @@ export class Hallway
         let hallwayLength: number = lengthRange.random();
         this.length = hallwayLength;
 
-        this.xPos = xPos;
-        this.yPos = yPos;
+        this.pos = new Coordinate(xPos, yPos);
+
+        //default values, will be set later when hallway is drawn
+        this.endPos = new Coordinate(0, 0);
 
         this.direction = direction;
     }
@@ -46,66 +47,66 @@ export class Hallway
             case Direction.North:
 
                 //Find the offset of the hallway
-                 this.xPos = this.offSetCoord(this.xPos, room.width);
+                 this.pos.x = this.offSetCoord(this.pos.x, room.width);
 
                 //draw the hallway
-                yCoord = this.yPos;
+                yCoord = this.pos.y;
                 for(let i = 0; i < this.length; i++)
                 {
-                    grid.cells[yCoord][this.xPos].cellType = CellType.Ground;
+                    grid.cells[yCoord][this.pos.x].cellType = CellType.Ground;
                     yCoord--;
                 }
 
                 //set end position for new room to be made
-                this.endX = this.xPos;
-                this.endY = yCoord;
+                this.endPos.x = this.pos.x;
+                this.endPos.y = yCoord;
 
                 break;
             case Direction.East:
 
-                this.xPos += room.width;
-                this.yPos = this.offSetCoord(this.yPos, room.height);
+                this.pos.x += room.width;
+                this.pos.y = this.offSetCoord(this.pos.y, room.height);
 
-                xCoord = this.xPos;
+                xCoord = this.pos.x;
                 for (let i = 0; i < this.length; i++)
                 {
-                    grid.cells[this.yPos][xCoord].cellType = CellType.Ground;
+                    grid.cells[this.pos.y][xCoord].cellType = CellType.Ground;
                     xCoord++;
                 }
 
-                this.endX = xCoord;
-                this.endY = this.yPos
+                this.endPos.x = xCoord;
+                this.endPos.y = this.pos.y
 
                 break;
             case Direction.West:
 
-                this.yPos = this.offSetCoord(this.yPos, room.height);
+                this.pos.y = this.offSetCoord(this.pos.y, room.height);
 
-                xCoord = this.xPos;
+                xCoord = this.pos.x;
                 for(let i = 0; i < this.length; i++)
                 {
-                    grid.cells[this.yPos][xCoord].cellType = CellType.Ground;
+                    grid.cells[this.pos.y][xCoord].cellType = CellType.Ground;
                     xCoord--;                    
                 }
 
-                this.endX = xCoord;
-                this.endY = this.yPos;
+                this.endPos.x = xCoord;
+                this.endPos.y = this.pos.y;
 
                 break;
             case Direction.South:
 
-                this.xPos = this.offSetCoord(this.xPos, room.width);
-                this.yPos += room.height;
+                this.pos.x = this.offSetCoord(this.pos.x, room.width);
+                this.pos.y += room.height;
 
-                yCoord = this.yPos;
+                yCoord = this.pos.y;
                 for (let i = 0; i < this.length; i++)
                 {
-                    grid.cells[yCoord][this.xPos].cellType = CellType.Ground;
+                    grid.cells[yCoord][this.pos.x].cellType = CellType.Ground;
                     yCoord++;
                 }
 
-                this.endX = this.xPos;
-                this.endY = yCoord;
+                this.endPos.x = this.pos.x;
+                this.endPos.y = yCoord;
 
                 break; 
         }
@@ -120,7 +121,7 @@ export class Hallway
         {
             case Direction.North:
 
-                if ((this.yPos - this.length) < 0)
+                if ((this.pos.y - this.length) < 0)
                     return true;                 
                     
 
@@ -128,21 +129,21 @@ export class Hallway
             case Direction.East:
 
                 //we must account for the room width here as well
-                if (((this.xPos + room.width) + this.length) > grid.cells.length - 1)
+                if (((this.pos.x + room.width) + this.length) > grid.cells.length - 1)
                     return true;
                     
 
                 break;
             case Direction.West:
 
-                if ((this.xPos - this.length)< 0)
+                if ((this.pos.x - this.length)< 0)
                     return true;
                     
 
                 break;
             case Direction.South:
 
-                if (((this.yPos + room.height) + this.length) > grid.cells.length - 1)
+                if (((this.pos.y + room.height) + this.length) > grid.cells.length - 1)
                     return true;
                    
                 break;

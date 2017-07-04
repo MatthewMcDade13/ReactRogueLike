@@ -152,10 +152,10 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
         //move left
         if (direction === 37 || direction === 65)
         {
-            if (!this.detectCollision(player.yPos, player.xPos - 1))
+            if (!this.detectCollision(player.pos.y, player.pos.x - 1))
             {
-                grid.cells[player.yPos][player.xPos].object = null;
-                grid.cells[player.yPos][player.xPos - 1].object = player;
+                grid.cells[player.pos.y][player.pos.x].object = null;
+                grid.cells[player.pos.y][player.pos.x - 1].object = player;
                 this.props.changePlayerDirection("left");
             }
             else
@@ -166,10 +166,10 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
         //move up
         else if (direction === 38 || direction === 87)
         {
-            if (!this.detectCollision(player.yPos - 1, player.xPos))
+            if (!this.detectCollision(player.pos.y - 1, player.pos.x))
             {
-                grid.cells[player.yPos][player.xPos].object = null;
-                grid.cells[player.yPos - 1][player.xPos].object = player;
+                grid.cells[player.pos.y][player.pos.x].object = null;
+                grid.cells[player.pos.y - 1][player.pos.x].object = player;
                 this.props.changePlayerDirection("up");
             }
             else
@@ -180,10 +180,10 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
         //move right
         else if (direction === 39 || direction === 68)
         {            
-            if (!this.detectCollision(player.yPos, player.xPos + 1))
+            if (!this.detectCollision(player.pos.y, player.pos.x + 1))
             {
-                grid.cells[player.yPos][player.xPos].object = null;
-                grid.cells[player.yPos][player.xPos + 1].object = player;
+                grid.cells[player.pos.y][player.pos.x].object = null;
+                grid.cells[player.pos.y][player.pos.x + 1].object = player;
                 this.props.changePlayerDirection("right");
             }
             else
@@ -194,10 +194,10 @@ export class GameLevel extends React.Component<IGameLevelProps, IGameLevelState>
         //move down
         else if (direction === 40 || direction === 83)
         {
-            if (!this.detectCollision(player.yPos + 1, player.xPos))
+            if (!this.detectCollision(player.pos.y + 1, player.pos.x))
             {
-                grid.cells[player.yPos][player.xPos].object = null;
-                grid.cells[player.yPos + 1][player.xPos].object = player;
+                grid.cells[player.pos.y][player.pos.x].object = null;
+                grid.cells[player.pos.y + 1][player.pos.x].object = player;
                 this.props.changePlayerDirection("down");
             }
             else
